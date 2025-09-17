@@ -80,8 +80,6 @@ func (r *Repository) GetOrders() ([]Order, error) {
 			Source:      "Статистика заработной платы Бюро трудовой статистики США (U.S. BLS), 1932 г.",
 		},
 	}
-	// обязательно проверяем ошибки, и если они появились - передаем выше, то есть хендлеру
-	// тут я снова искусственно обработаю "ошибку" чисто чтобы показать вам как их передавать выше
 	if len(orders) == 0 {
 		return nil, fmt.Errorf("Array is empty")
 	}
@@ -90,15 +88,14 @@ func (r *Repository) GetOrders() ([]Order, error) {
 }
 
 func (r *Repository) GetOrder(id int) (Order, error) {
-	// тут у вас будет логика получения нужной услуги, тоже наверное через цикл в первой лабе, и через запрос к БД начиная со второй
 	orders, err := r.GetOrders()
 	if err != nil {
-		return Order{}, err // тут у нас уже есть кастомная ошибка из нашего метода, поэтому мы можем просто вернуть ее
+		return Order{}, err
 	}
 
 	for _, order := range orders {
 		if order.ID == id {
-			return order, nil // если нашли, то просто возвращаем найденный заказ (услугу) без ошибок
+			return order, nil
 		}
 	}
 	return Order{}, fmt.Errorf("заказ не найден") // тут нужна кастомная ошибка, чтобы понимать на каком этапе возникла ошибка и что произошло

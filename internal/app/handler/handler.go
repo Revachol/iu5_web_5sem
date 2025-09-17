@@ -24,14 +24,14 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 	var orders []repository.Order
 	var err error
 
-	searchQuery := ctx.Query("query") // получаем значение из поля поиска
-	if searchQuery == "" {            // если поле поиска пусто, то просто получаем из репозитория все записи
+	searchQuery := ctx.Query("query")
+	if searchQuery == "" {
 		orders, err = h.Repository.GetOrders()
 		if err != nil {
 			logrus.Error(err)
 		}
 	} else {
-		orders, err = h.Repository.GetOrdersByTitle(searchQuery) // в ином случае ищем заказ по заголовку
+		orders, err = h.Repository.GetOrdersByTitle(searchQuery)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -49,16 +49,14 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"time":               time.Now().Format("15:04:05"),
 		"historical_objects": orders,
-		"query":              searchQuery, // передаем введенный запрос обратно на страницу
-		// в ином случае оно будет очищаться при нажатии на кнопку
-		"estimate_count": estimateCount,
+		"query":              searchQuery,
+		"estimate_count":     estimateCount,
 	})
 }
 
 func (h *Handler) GetOrder(ctx *gin.Context) {
-	idStr := ctx.Param("id") // получаем id заказа из урла (то есть из /order/:id)
-	// через двоеточие мы указываем параметры, которые потом сможем считать через функцию выше
-	id, err := strconv.Atoi(idStr) // так как функция выше возвращает нам строку, нужно ее преобразовать в int
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -74,17 +72,24 @@ func (h *Handler) GetOrder(ctx *gin.Context) {
 }
 
 func (h *Handler) GetEstimate(ctx *gin.Context) {
-	idStr := ctx.Param("id")
+	// получаем значение параметра id из query, а не из пути
+	idStr := ctx.Query("id")
+	if idStr == "" {
+		logrus.Error("id parameter is missing")
+		ctx.String(http.StatusBadRequest, "id parameter is missing")
+		return
+	}
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		logrus.Error(err)
+		ctx.String(http.StatusBadRequest, "invalid id parameter")
 		return
 	}
 
 	estimate, err := h.Repository.GetEstimateData(id)
 	if err != nil {
 		logrus.Error(err)
-		// Maybe render an error page
+		ctx.String(http.StatusInternalServerError, "could not get estimate data")
 		return
 	}
 
