@@ -119,3 +119,24 @@ func (r *Repository) GetOrdersByTitle(title string) ([]Order, error) {
 
 	return result, nil
 }
+
+type Estimate struct {
+	ID       int
+	OrderIDs []int
+}
+
+var estimates = []Estimate{
+	{
+		ID:       1,
+		OrderIDs: []int{1, 2},
+	},
+}
+
+func (r *Repository) GetEstimateData(id int) (Estimate, error) {
+	for _, estimate := range estimates {
+		if estimate.ID == id {
+			return estimate, nil
+		}
+	}
+	return Estimate{}, fmt.Errorf("estimate with id %d not found", id)
+}

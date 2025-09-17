@@ -37,11 +37,21 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 		}
 	}
 
+	estimate, err := h.Repository.GetEstimateData(1)
+	var estimateCount int
+	if err != nil {
+		logrus.Error(err)
+		estimateCount = 0
+	} else {
+		estimateCount = len(estimate.OrderIDs)
+	}
+
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"time":               time.Now().Format("15:04:05"),
 		"historical_objects": orders,
 		"query":              searchQuery, // передаем введенный запрос обратно на страницу
 		// в ином случае оно будет очищаться при нажатии на кнопку
+		"estimate_count": estimateCount,
 	})
 }
 
@@ -60,5 +70,36 @@ func (h *Handler) GetOrder(ctx *gin.Context) {
 
 	ctx.HTML(http.StatusOK, "order.html", gin.H{
 		"historical_object": order,
+	})
+}
+
+func (h *Handler) GetEstimate(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+
+	estimate, err := h.Repository.GetEstimateData(id)
+	if err != nil {
+		logrus.Error(err)
+		// Maybe render an error page
+		return
+	}
+
+	var orders []repository.Order
+	for _, orderID := range estimate.OrderIDs {
+		order, err := h.Repository.GetOrder(orderID)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+		orders = append(orders, order)
+	}
+
+	ctx.HTML(http.StatusOK, "estimate.html", gin.H{
+		"estimate_objects": orders,
+		"estimate_id":      id,
 	})
 }

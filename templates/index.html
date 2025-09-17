@@ -7,8 +7,8 @@
     <a href="/" class="home-link"><h1>Главная</h1></a>
     <a href="/"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a>
 </header>
-<form action="/hello" method="GET" class="search-form">
-    <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
+<form action="/" method="GET" class="search-form">
+    <input type="text" name="query" placeholder="Поиск" value="{{ .query }}">
     <button type="submit">Найти</button>
 </form>
 
@@ -26,8 +26,11 @@
     {{ end }}
 </div>
 <div class="basket-container">
-    <a href="/basket">
-        <img src="/static/img/pngwing.com.png" alt="basket">
+    <a href="/estimate/1">
+        <img src="/static/img/pngwing.com.png" alt="estimate">
+        {{ if gt .estimate_count 0 }}
+            <div class="basket-counter">{{ .estimate_count }}</div>
+        {{ end }}
     </a>
 </div>
 </html>

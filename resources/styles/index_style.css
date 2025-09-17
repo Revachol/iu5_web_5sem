@@ -142,7 +142,7 @@ h1 {
 
 .basket-container {
     position: fixed;
-    bottom: 20px;
+    bottom: 50px;
     left: 20px;
     z-index: 1000;
 }
@@ -150,4 +150,25 @@ h1 {
 .basket-container img {
     width: 60px; 
     height: 60px;
+}
+
+.basket-container a {
+    position: relative;
+    display: inline-block;
+}
+
+.basket-counter {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
 }

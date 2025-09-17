@@ -1,5 +1,5 @@
 body{
-    background-color: #ffffff;
+    background-color: #f0f2f5;
 }
 /* h1 {
     color: #333;
@@ -21,13 +21,13 @@ header{
     transform-origin: center top;
 }
 
-.logo{
+/* .logo{
     position: absolute;
     width: 80px;
     left: 50%;
     transform: translateX(-50%);
     top: 12.5px;
-}
+} */
 
 .home-link {
     height: 70px;
