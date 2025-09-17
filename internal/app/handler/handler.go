@@ -68,7 +68,7 @@ func (h *Handler) GetOrder(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	ctx.HTML(http.StatusOK, "order.html", gin.H{
+	ctx.HTML(http.StatusOK, "historical_object.html", gin.H{
 		"historical_object": order,
 	})
 }

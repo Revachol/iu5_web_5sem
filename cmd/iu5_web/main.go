@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	log.Println("App started on http://127.0.0.1:8080/ping")
+	log.Println("App started on http://127.0.0.1:8080/")
 	app.StartServer()
 	log.Println("App finished")
 }

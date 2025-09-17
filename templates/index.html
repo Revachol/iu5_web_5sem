@@ -5,7 +5,7 @@
 </head>
 <header>
     <a href="/" class="home-link"><h1>Главная</h1></a>
-    <a href="/"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a>
+    <a href="/"><img class="logo" src="http://localhost:9000/iu5-web/img/Vector_1.svg" alt="home"></a>
 </header>
 <form action="/" method="GET" class="search-form">
     <input type="text" name="query" placeholder="Поиск" value="{{ .query }}">
@@ -15,11 +15,11 @@
 <div class="cards-container">
     {{ range .historical_objects }}
     <div class="card">
-        <a href="/order/{{ .ID }}"><img src="{{ .Img }}" alt="{{ .Title }}"></a>
+        <a href="/historical_object/{{ .ID }}"><img src="{{ .Img }}" alt="{{ .Title }}"></a>
         <p class="price">{{ .Price }} / за {{ .Value }}</p>
         <h3 class="title">{{ .Title }}</h3>
         <div class="buttons">
-            <a href="/order/{{ .ID }}" class="details-button">Подробнее</a>
+            <a href="/historical_object/{{ .ID }}" class="details-button">Подробнее</a>
             <button class="buy-button">Купить</button>
         </div>
     </div>
