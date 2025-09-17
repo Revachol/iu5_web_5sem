@@ -4,10 +4,8 @@
     <link rel="stylesheet" href="/static/styles/index_style.css">
 </head>
 <header>
-    <a href="/hello" class="home-link"><h1>Главная</h1></a>
-    <a href="/hello">
-        <a href="/hello"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a>
-    </a>
+    <a href="/" class="home-link"><h1>Главная</h1></a>
+    <a href="/"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a>
 </header>
 <form action="/hello" method="GET" class="search-form">
     <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
@@ -17,7 +15,7 @@
 <div class="cards-container">
     {{ range .historical_objects }}
     <div class="card">
-        <img src="{{ .Img }}" alt="{{ .Title }}">
+        <a href="/order/{{ .ID }}"><img src="{{ .Img }}" alt="{{ .Title }}"></a>
         <p class="price">{{ .Price }} / за {{ .Value }}</p>
         <h3 class="title">{{ .Title }}</h3>
         <div class="buttons">

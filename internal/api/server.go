@@ -23,7 +23,7 @@ func StartServer() {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./resources")
 
-	r.GET("/hello", handler.GetOrders)
+	r.GET("/", handler.GetOrders)
 	r.GET("/order/:id", handler.GetOrder)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
