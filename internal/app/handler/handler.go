@@ -24,7 +24,7 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 	var orders []repository.Order
 	var err error
 
-	searchQuery := ctx.Query("query")
+	searchQuery := ctx.Query("searchHistoricalObject")
 	if searchQuery == "" {
 		orders, err = h.Repository.GetOrders()
 		if err != nil {
@@ -47,10 +47,10 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
-		"time":               time.Now().Format("15:04:05"),
-		"historical_objects": orders,
-		"query":              searchQuery,
-		"estimate_count":     estimateCount,
+		"time":                   time.Now().Format("15:04:05"),
+		"historical_objects":     orders,
+		"searchHistoricalObject": searchQuery,
+		"estimate_count":         estimateCount,
 	})
 }
 
@@ -103,7 +103,7 @@ func (h *Handler) GetEstimate(ctx *gin.Context) {
 		orders = append(orders, order)
 	}
 
-	ctx.HTML(http.StatusOK, "estimate.html", gin.H{
+	ctx.HTML(http.StatusOK, "historical_estimate.html", gin.H{
 		"estimate_objects": orders,
 		"estimate_id":      id,
 	})

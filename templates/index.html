@@ -8,7 +8,7 @@
     <a href="/"><img class="logo" src="http://localhost:9000/iu5-web/img/Vector_1.svg" alt="home"></a>
 </header>
 <form action="/" method="GET" class="search-form">
-    <input type="text" name="query" placeholder="Поиск" value="{{ .query }}">
+    <input type="text" name="searchHistoricalObject" placeholder="Поиск" value="{{ .searchHistoricalObject }}">
     <button type="submit">Найти</button>
 </form>
 
@@ -26,8 +26,8 @@
     {{ end }}
 </div>
 <div class="basket-container">
-    <a href="/estimate?id=1">
-        <img src="/static/img/pngwing.com.png" alt="estimate">
+    <a href="/historical_estimate?id=1">
+        <img src="http://localhost:9000/iu5-web/img/pngwing.com (1).png" alt="historical_estimate">
         {{ if gt .estimate_count 0 }}
             <div class="basket-counter">{{ .estimate_count }}</div>
         {{ end }}
