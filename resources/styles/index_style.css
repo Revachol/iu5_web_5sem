@@ -1,0 +1,174 @@
+body{
+    background-color: #e4e4e4;
+}
+
+ul li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+}
+
+ul li a:hover {
+    text-decoration: underline;
+}
+
+h2 {
+    color: #333;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+header{
+    position: absolute;
+    width: 1500px;
+    height: 70px;
+    left: 0px;
+    top: 0px;
+    container-type: normal;
+    transform-origin: center top;
+}
+
+.logo{
+    position: absolute;
+    width: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 12.5px;
+}
+
+.home-link {
+    height: 70px;
+    margin-top: 0px;
+    position: absolute;
+    left: 215px;
+    color: black;
+    text-decoration: none;
+}
+
+h1 {
+    margin-top: 10px;
+}
+
+.search-form {
+    position: absolute;
+    top: 90px;
+    right: 175px;
+    display: flex;
+    align-items: center;
+}
+
+.search-form input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    width: 250px;
+    font-family: "Jost";
+    font-size: 16px;
+}
+
+.search-form button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #323232;
+    color: white;
+    cursor: pointer;
+    font-family: "Jost";
+    font-size: 16px;
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 150px 175px 0px;
+}
+
+.card {
+    border-radius: 5px;
+    padding: 15px;
+    /* text-align: center; */
+}
+
+.card img {
+    width: 360px;
+    height: 396px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.card .price {
+    font-family: "Jost";
+    font-weight: thick;
+    margin-top: 10px;
+    font-size: 20px;
+    margin-bottom: 0px;
+    color: #6d6d6d;
+}
+
+.card .title {
+    color: #393939;
+    font-size: 30px;
+    margin: 0px 0;
+}
+
+.card .buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.card .details-button, .card .buy-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.card .details-button {
+    font-family: "Jost";
+    background-color: #323232;
+}
+
+.card .buy-button {
+    font-family: "Jost";
+    font-size: 14px;
+    background-color: #e4e4e4;
+    border: 1px solid #323232;
+    color: #323232;
+}
+
+.basket-container {
+    position: fixed;
+    bottom: 50px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.basket-container img {
+    width: 60px; 
+    height: 60px;
+}
+
+.basket-container a {
+    position: relative;
+    display: inline-block;
+}
+
+.basket-counter {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+}

@@ -1,0 +1,19 @@
+<html lang="en">
+<head>
+    <title>{{ .historical_object.Title }}</title>
+    <link rel="stylesheet" href="/static/styles/order_style.css">
+</head>
+<header>
+    <a href="/" class="home-link"><h1>Главная</h1></a>
+    <!-- <a href="/"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a> -->
+</header>
+<div class="card">
+    <img src="{{ .historical_object.Img }}" alt="{{ .historical_object.Title }}">
+    <div class="card_desc">
+        <h3 class="title">{{ .historical_object.Title }}</h3>
+        <p class="price">{{ .historical_object.Price }} / за {{ .historical_object.Value }}</p>
+        <p class="description">{{.historical_object.Description}} </p>
+        <p class="source">{{.historical_object.Source}} </p>
+    </div>
+</div>
+</html>

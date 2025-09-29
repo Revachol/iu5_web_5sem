@@ -1,0 +1,37 @@
+<html lang="en">
+<head>
+    <title>Смета</title>
+    <link rel="stylesheet" href="/static/styles/estimate_style.css">
+</head>
+<header>
+    <a href="/" class="home-link"><h1>Главная</h1></a>
+    <!-- <a href="/"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a> -->
+</header>
+<body>
+    <div class="year-selector">
+        <label for="year">Выберите год для пересчета:</label>
+        <input type="number" id="year" name="year" min="-3000" max="2025" value="2025">
+    </div>
+
+    <div class="estimate-container">
+        {{ range .estimate_objects }}
+        <div class="estimate-card">
+            <img src="{{ .Img }}" alt="{{ .Title }}">
+            <h3 class="title">{{ .Title }}</h3>
+            <div class="price-field">
+                <label>Цена</label>
+                <input type="text" value="{{ .Price }} / за {{ .Value }}" readonly>
+            </div>
+            <div class="volume-field">
+                <label>Объем</label>
+                <input type="text" value="1">
+            </div>
+        </div>
+        {{ end }}
+    </div>
+
+    <div class="result">
+        <h3>Результат с учетом инфляции и конвертации: 34315 р.</h3>
+    </div>
+</body>
+</html>
