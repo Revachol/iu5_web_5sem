@@ -1,6 +1,6 @@
 <html lang="en">
 <head>
-    <title>{{ .historical_object.Title }}</title>
+    <title>{{ .historical_object.Name }}</title>
     <link rel="stylesheet" href="/static/styles/order_style.css">
 </head>
 <header>
@@ -8,12 +8,12 @@
     <!-- <a href="/"><img class="logo" src="/static/img/Vector_1.svg" alt="home"></a> -->
 </header>
 <div class="card">
-    <img src="{{ .historical_object.Img }}" alt="{{ .historical_object.Title }}">
+    <img src="{{ .historical_object.ImageURL }}" alt="{{ .historical_object.Name }}">
     <div class="card_desc">
-        <h3 class="title">{{ .historical_object.Title }}</h3>
-        <p class="price">{{ .historical_object.Price }} / за {{ .historical_object.Value }}</p>
+        <h3 class="title">{{ .historical_object.Name }}</h3>
+        <p class="price">{{ .historical_object.PriceUSD }}$ / за {{ .historical_object.Unit }}</p>
         <p class="description">{{.historical_object.Description}} </p>
-        <p class="source">{{.historical_object.Source}} </p>
+        <p class="source">Источник: {{.historical_object.DataSource}} </p>
     </div>
 </div>
 </html>

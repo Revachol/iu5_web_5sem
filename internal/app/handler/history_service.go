@@ -27,20 +27,17 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 		}
 	}
 
-	estimate, err := h.Repository.GetEstimateData(1)
-	var estimateCount int
-	if err != nil {
-		logrus.Error(err)
-		estimateCount = 0
-	} else {
-		estimateCount = len(estimate.OrderIDs)
-	}
+	estimateCount := h.Repository.GetCartCount()
+	draftRequestID, _ := h.Repository.GetDraftRequestID() // если нет — будет 0
 
+	logrus.Info("Draft Request ID:", draftRequestID)
+	logrus.Info("Estimate Count:", estimateCount)
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"time":                   time.Now().Format("15:04:05"),
 		"historical_objects":     horders,
 		"searchHistoricalObject": searchQuery,
 		"estimate_count":         estimateCount,
+		"draft_request_id":       draftRequestID,
 	})
 }
 

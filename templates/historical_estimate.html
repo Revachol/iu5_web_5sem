@@ -16,15 +16,15 @@
     <div class="estimate-container">
         {{ range .estimate_objects }}
         <div class="estimate-card">
-            <img src="{{ .Img }}" alt="{{ .Title }}">
-            <h3 class="title">{{ .Title }}</h3>
+            <img src="{{ .Service.ImageURL }}" alt="{{ .Service.Name }}">
+            <h3 class="title">{{ .Service.Name }}</h3>
             <div class="price-field">
                 <label>Цена</label>
-                <input type="text" value="{{ .Price }} / за {{ .Value }}" readonly>
+                <input type="text" value="{{ .Service.PriceUSD }} / за {{ .Service.Unit }}" readonly>
             </div>
             <div class="volume-field">
                 <label>Объем</label>
-                <input type="text" value="1">
+                <input type="text" value="{{ .Quantity }}">
             </div>
         </div>
         {{ end }}
