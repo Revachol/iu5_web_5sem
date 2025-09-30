@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/Revachol/iu5_web_5sem/internal/app/ds"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +24,7 @@ func (r *Repository) GetHistoricalRequest(id int) (ds.Historical_service, error)
 	var historical_object ds.Historical_service
 	err := r.db.Where("id = ?", id).First(&historical_object).Error
 	if err != nil {
+		logrus.Error("Error fetching historical_object:", err)
 		return ds.Historical_service{}, err
 	}
 	return historical_object, nil

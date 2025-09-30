@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"time"
+
 	"github.com/Revachol/iu5_web_5sem/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 func (h *Handler) GetOrders(ctx *gin.Context) {
@@ -41,7 +42,7 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) GetOrder(ctx *gin.Context) {
+func (h *Handler) GetHistoricalObject(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -56,4 +57,21 @@ func (h *Handler) GetOrder(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "historical_object.html", gin.H{
 		"historical_object": order,
 	})
+}
+
+func (h *Handler) AddServiceToRequest(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logrus.Error("invalid service id: ", err)
+		ctx.Redirect(http.StatusFound, "/")
+		return
+	}
+
+	err = h.Repository.AddServiceToRequest(id)
+	if err != nil {
+		logrus.Error("failed to add service to request: ", err)
+	}
+
+	ctx.Redirect(http.StatusFound, "/")
 }

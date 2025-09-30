@@ -20,7 +20,9 @@
         <h3 class="title">{{ .Name }}</h3>
         <div class="buttons">
             <a href="/historical_object/{{ .ID }}" class="details-button">Подробнее</a>
-            <button class="buy-button">Купить</button>
+            <form action="/add_to_cart/{{ .ID }}" method="POST" style="display: inline;">
+                <button type="submit" class="buy-button">Купить</button>
+            </form>
         </div>
     </div>
     {{ end }}

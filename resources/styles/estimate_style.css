@@ -123,3 +123,27 @@ header {
     font-size: 1.3em;
     font-weight: 600;
 }
+
+.actions {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 1000px;
+}
+
+.delete-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #fff;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}

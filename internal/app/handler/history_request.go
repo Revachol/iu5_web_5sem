@@ -18,7 +18,7 @@ func (h *Handler) GetHistoricalRequest(ctx *gin.Context) {
 		return
 	}
 
-	historical_object, err := h.Repository.GetHistoricalRequest(id)
+	historical_object, err := h.Repository.GetOrder(id)
 	if err != nil {
 		logrus.Error(err)
 		ctx.Redirect(http.StatusFound, "/")

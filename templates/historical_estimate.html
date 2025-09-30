@@ -31,7 +31,14 @@
     </div>
 
     <div class="result">
-        <h3>Результат с учетом инфляции и конвертации: 34315 р.</h3>
+        <h3>Итого: {{ .total_sum }}$</h3>
+        <h3>Результат с учетом инфляции и конвертации: {{.total_cost_usd}}$</h3>
+    </div>
+
+    <div class="actions">
+        <form action="/delete_request/{{ .estimate_id }}" method="POST">
+            <button type="submit" class="delete-button">Удалить заявку</button>
+        </form>
     </div>
 </body>
 </html>
