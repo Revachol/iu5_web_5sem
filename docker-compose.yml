@@ -73,7 +73,28 @@ services:
       - minio1
       - minio2
       - minio3
-      - minio4
+      
+    # PostgreSQL service
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    # restart: always
+    environment:
+      POSTGRES_USER: developer
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: historical_objects_catalog
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Adminer (web-UI for PostgreSQL)
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
 
 ## По умолчанию в этой конфигурации используется локальный драйвер docker по умолчанию,
 ## Для пользовательских томов замените на конфигурацию драйвера тома.
@@ -86,3 +107,4 @@ volumes:
   data3-2:
   data4-1:
   data4-2:
+  pgdata:

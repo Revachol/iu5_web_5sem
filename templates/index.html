@@ -15,9 +15,9 @@
 <div class="cards-container">
     {{ range .historical_objects }}
     <div class="card">
-        <a href="/historical_object/{{ .ID }}"><img src="{{ .Img }}" alt="{{ .Title }}"></a>
-        <p class="price">{{ .Price }} / за {{ .Value }}</p>
-        <h3 class="title">{{ .Title }}</h3>
+        <a href="/historical_object/{{ .ID }}"><img src="{{ .ImageURL }}" alt="{{ .Name }}"></a>
+        <p class="price">{{ .PriceUSD }}$ / за {{ .Unit }}</p>
+        <h3 class="title">{{ .Name }}</h3>
         <div class="buttons">
             <a href="/historical_object/{{ .ID }}" class="details-button">Подробнее</a>
             <button class="buy-button">Купить</button>
@@ -27,7 +27,7 @@
 </div>
 <div class="basket-container">
     <a href="/historical_estimate?id=1">
-        <img src="http://localhost:9000/iu5-web/img/pngwing.com (1).png" alt="historical_estimate">
+        <img src="http://localhost:9000/iu5-web/img/pngwing.com (1).png" alt="estimate">
         {{ if gt .estimate_count 0 }}
             <div class="basket-counter">{{ .estimate_count }}</div>
         {{ end }}
