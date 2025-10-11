@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (r *Repository) GetOrders() ([]ds.Historical_service, error) {
+func (r *Repository) GetHistoricalObjects() ([]ds.Historical_service, error) {
 	// имитируем работу с БД. Типа мы выполнили sql запрос и получили эти строки из БД
 	var orders []ds.Historical_service
 	err := r.db.Find(&orders).Error

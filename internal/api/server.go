@@ -12,7 +12,7 @@ import (
 func StartServer() {
 	log.Println("Starting server")
 
-	repo, err := repository.NewRepository()
+	repo, err := repository.NewRepository("config/database_config.json")
 	if err != nil {
 		logrus.Error("ошибка инициализации репозитория")
 	}
@@ -24,8 +24,8 @@ func StartServer() {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./resources")
 
-	r.GET("/", handler.GetOrders)
-	r.GET("/historical_object/:id", handler.GetOrder)
+	r.GET("/", handler.GetHistoricalObjects)
+	r.GET("/historical_object/:id", handler.GetHistoricalObject)
 	// r.GET("/historical_estimate", handler.GetEstimate)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

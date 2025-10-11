@@ -17,7 +17,7 @@ func NewHandler(r *repository.Repository) *Handler {
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	router.GET("/", h.GetOrders)
+	router.GET("/", h.GetHistoricalObjects)
 	router.GET("/historical_object/:id", h.GetHistoricalObject)
 	router.GET("/historical_estimate/:id", h.GetHistoricalEstimate)
 	router.POST("/add_to_cart/:id", h.AddServiceToRequest)

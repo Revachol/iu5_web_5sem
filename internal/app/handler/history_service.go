@@ -11,13 +11,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (h *Handler) GetOrders(ctx *gin.Context) {
+func (h *Handler) GetHistoricalObjects(ctx *gin.Context) {
 	var horders []ds.Historical_service
 	var err error
 
 	searchQuery := ctx.Query("searchHistoricalObject")
 	if searchQuery == "" {
-		horders, err = h.Repository.GetOrders()
+		horders, err = h.Repository.GetHistoricalObjects()
 		if err != nil {
 			logrus.Error(err)
 		}
