@@ -27,7 +27,7 @@
     </div>
     {{ end }}
 </div>
-<div class="basket-container">
+<div class="basket-container {{ if eq .estimate_count 0 }}basket-empty{{ end }}">
     <a href="/historical_estimate/{{ .draft_request_id }}">
         <img src="http://localhost:9000/iu5-web/img/pngwing.com (1).png" alt="estimate">
         {{ if gt .estimate_count 0 }}

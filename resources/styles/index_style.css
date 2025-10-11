@@ -173,3 +173,13 @@ h1 {
     font-size: 14px;
     font-weight: bold;
 }
+
+.basket-empty {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+}
+
+.basket-empty a {
+    pointer-events: none;
+}
