@@ -2,6 +2,8 @@ package repository
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/Revachol/iu5_web_5sem/internal/app/ds"
 	"gorm.io/gorm"
 )
@@ -68,4 +70,55 @@ func (r *Repository) GetOrdersFiltered(status, start, end string) ([]ds.OrderRes
 	}
 
 	return orders, nil
+}
+
+func (r *Repository) UpdateHistoricalRequest(estimateID int, req ds.UpdateOrderRequest) error {
+	updates := make(map[string]interface{})
+
+	if req.CurrentYear != nil {
+		updates["current_year"] = *req.CurrentYear
+	}
+
+	if len(updates) == 0 {
+		return nil // ничего менять не нужно
+	}
+
+	return r.db.Model(&ds.Historical_request{}).Where("id = ?", estimateID).Updates(updates).Error
+}
+
+func (r *Repository) FormMaterialOrder(estimateID int) error {
+	// Проверяем, что все wall_length заполнены
+	var count int64
+	if err := r.db.Model(&ds.Historical_request_service{}).
+		Where("request_id = ? AND quantity IS NULL", estimateID).
+		Count(&count).Error; err != nil {
+		return fmt.Errorf("ошибка проверки quantity: %w", err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("нельзя сформировать заказ: не все quantity заполнены")
+	}
+
+	// Обновляем заказ: статус и date_form
+	updates := map[string]interface{}{
+		"status":       "submitted",
+		"submitted_at": time.Now(),
+	}
+
+	// Обновляем только если текущий статус черновик
+	if err := r.db.Model(&ds.Historical_request{}).
+		Where("id = ? AND status = ?", estimateID, "draft").
+		Updates(updates).Error; err != nil {
+		return fmt.Errorf("ошибка обновления заказа: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteHistoricalEstimete(id int) error {
+	updates := map[string]interface{}{
+		"status":       "deleted",
+		"submitted_at": time.Now(), // дата завершения
+	}
+	return r.db.Model(&ds.Historical_request{}).Where("id = ?", id).Updates(updates).Error
 }

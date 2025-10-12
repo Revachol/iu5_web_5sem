@@ -37,6 +37,10 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/api/historical_estimate", h.GetAllHistoricalEstimateAPI)  //GET список (кроме удаленных и черновика, поля модератора и создателя через логины) с фильтрацией по диапазону даты формирования и статусу
 	router.GET("/api/historical_estimate/:id", h.GetHistoricalEstimateAPI) //GET одна запись (поля заявки + ее услуги)
 
+	router.PUT("/api/historical_estimate/:id", h.UpdateHistoricalEstimateAPI)
+	router.PUT("/api/historical_estimate/:id/form", h.FormHistoricalEstimateAPI)
+	router.DELETE("/api/historical_estimate/:id", h.DeleteHistoricalEstimeteAPI)
+
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

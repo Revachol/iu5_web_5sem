@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -120,5 +121,101 @@ func (h *Handler) GetHistoricalEstimateAPI(ctx *gin.Context) {
 		"status":    "success",
 		"order":     orderResp,
 		"materials": materials,
+	})
+}
+
+// PUT /api/historical_estimate/:id
+func (h *Handler) UpdateHistoricalEstimateAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	var raw map[string]interface{}
+	if err := ctx.BindJSON(&raw); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	allowed := map[string]bool{
+		"current_year": true,
+	}
+
+	for k := range raw {
+		if !allowed[k] {
+			h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("недопустимое поле: %s", k))
+			return
+		}
+	}
+	var req ds.UpdateOrderRequest
+	if v, ok := raw["current_year"]; ok {
+		if f, ok := v.(float64); ok {
+			req.CurrentYear = &f
+		}
+	}
+
+	if err := h.Repository.UpdateHistoricalRequest(id, req); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	order, _, err := h.Repository.GetHistoricalRequest(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"order":  order,
+	})
+}
+
+func (h *Handler) FormHistoricalEstimateAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	estimateID, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.Repository.FormMaterialOrder(estimateID); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	// Возвращаем обновлённый заказ
+	estimate, _, err := h.Repository.GetHistoricalRequest(estimateID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":              "success",
+		"historical_estimate": estimate,
+	})
+
+}
+
+func (h *Handler) DeleteHistoricalEstimeteAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = h.Repository.DeleteHistoricalEstimete(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Объект успешно удалён",
 	})
 }

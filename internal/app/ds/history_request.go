@@ -14,6 +14,7 @@ type Historical_request struct {
 	Moderator           *User    `gorm:"foreignKey:ModeratorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	TotalCostUSD        *float64 `gorm:"type:decimal(15,2)"`
 	InflationMultiplier *float64 `gorm:"type:decimal(10,4)"`
+	CurrentYear         int      `gorm:"not null;default:0"`
 }
 
 type OrderResponse struct {
@@ -25,6 +26,5 @@ type OrderResponse struct {
 }
 
 type UpdateOrderRequest struct {
-	CeilingHeight *float64 `json:"ceiling_height,omitempty"`
-	WallThickness *float64 `json:"wall_thickness,omitempty"`
+	CurrentYear *float64 `json:"current_year,omitempty"`
 }
