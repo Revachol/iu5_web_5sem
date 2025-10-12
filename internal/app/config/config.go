@@ -8,9 +8,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+// MinioConfig хранит настройки для MinIO
+type MinioConfig struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
+	Bucket    string
+}
+
 type Config struct {
 	ServiceHost string
 	ServicePort int
+	Minio       MinioConfig
 }
 
 func NewConfig() (*Config, error) {
@@ -42,5 +51,14 @@ func NewConfig() (*Config, error) {
 
 	log.Info("config parsed")
 
-	return cfg, nil
+	return &Config{
+		ServiceHost: cfg.ServiceHost,
+		ServicePort: cfg.ServicePort,
+		Minio: MinioConfig{
+			Endpoint:  os.Getenv("MINIO_ENDPOINT"), // только хост:порт
+			AccessKey: os.Getenv("MINIO_ACCESS_KEY"),
+			SecretKey: os.Getenv("MINIO_SECRET_KEY"),
+			Bucket:    os.Getenv("MINIO_BUCKET"),
+		},
+	}, nil
 }

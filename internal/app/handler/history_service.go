@@ -75,3 +75,180 @@ func (h *Handler) AddServiceToRequest(ctx *gin.Context) {
 
 	ctx.Redirect(http.StatusFound, "/")
 }
+
+// GET /api/historical_object/:id
+func (h *Handler) GetHistoricalObjectAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	order, err := h.Repository.GetOrder(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	if order.ID == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"status":      "error",
+			"description": "Объект не найден",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":            "success",
+		"historical_object": order,
+	})
+}
+
+// GET /api/historical_objects?title=<название>
+func (h *Handler) GetHistoricalObjectsAPI(ctx *gin.Context) {
+	title := ctx.Query("title")
+
+	objects, err := h.Repository.GetOrdersByTitle(title)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":             "success",
+		"historical_objects": objects,
+	})
+}
+
+// POST /api/create_object
+func (h *Handler) CreateHistoricalObjectAPI(ctx *gin.Context) {
+	var input ds.Historical_service
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if err := h.Repository.CreateHistoricalObject(&input); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":            "success",
+		"historical_object": input,
+	})
+}
+
+// PUT /api/historical_object/:id
+func (h *Handler) UpdateHistoricalObjectAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	var input ds.Historical_service
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = h.Repository.UpdateHistoricalObject(id, &input)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":            "success",
+		"historical_object": input,
+	})
+}
+
+// DELETE /api/historical_object/:id
+func (h *Handler) DeleteHistoricalObjectAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = h.Repository.DeleteHistoricalObject(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Объект успешно удалён",
+	})
+}
+
+// POST /api/add_to_estimate/:id
+func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
+	objectIDStr := ctx.Param("id")
+	objectID, err := strconv.Atoi(objectIDStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	userID := 1
+
+	// Получаем черновой заказ пользователя
+	order, err := h.Repository.GetDraftRequest(userID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Если чернового заказа нет — создаём новый
+	if order.ID == 0 {
+		order, err = h.Repository.GetDraftRequest(userID)
+		if err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	// Добавляем материал в заказ
+	if err := h.Repository.AddServiceToRequest(objectID); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Получаем новое количество материалов в заказе
+	count := h.Repository.GetCartCount()
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":    "success",
+		"message":   "Объект добавлен в черновой заказ",
+		"orderID":   order.ID,
+		"itemCount": count,
+	})
+}
+
+// POST /api/historical_object/:id/image
+func (h *Handler) UploadHistoricalObjectImage(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid object id"})
+		return
+	}
+
+	fileHeader, err := ctx.FormFile("image")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no image file"})
+		return
+	}
+
+	if err := h.Repository.UploadHistoricalObjectImage(id, fileHeader); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "image uploaded"})
+}

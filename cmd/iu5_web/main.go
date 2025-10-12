@@ -26,10 +26,15 @@ func main() {
 	postgresString := dsn.FromEnv()
 	fmt.Println(postgresString)
 
-	// Инициализация репозитория
-	rep, errRep := repository.NewRepository(postgresString)
-	if errRep != nil {
-		logrus.Fatalf("error initializing repository: %v", errRep)
+	rep, err := repository.NewRepository(
+		postgresString,
+		conf.Minio.Endpoint,
+		conf.Minio.AccessKey,
+		conf.Minio.SecretKey,
+		conf.Minio.Bucket,
+	)
+	if err != nil {
+		logrus.Fatalf("error initializing repository: %v", err)
 	}
 
 	// Создание хендлера с подключённым репозиторием
