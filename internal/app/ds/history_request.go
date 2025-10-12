@@ -15,3 +15,16 @@ type Historical_request struct {
 	TotalCostUSD        *float64 `gorm:"type:decimal(15,2)"`
 	InflationMultiplier *float64 `gorm:"type:decimal(10,4)"`
 }
+
+type OrderResponse struct {
+	ID         int        `json:"id"`
+	Status     string     `json:"status"`
+	DateCreate time.Time  `json:"date_create"`
+	DateForm   *time.Time `json:"date_form,omitempty"`
+	DateFinish *time.Time `json:"date_finish,omitempty"`
+}
+
+type UpdateOrderRequest struct {
+	CeilingHeight *float64 `json:"ceiling_height,omitempty"`
+	WallThickness *float64 `json:"wall_thickness,omitempty"`
+}
