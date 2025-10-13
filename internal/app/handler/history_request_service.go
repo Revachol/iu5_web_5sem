@@ -54,3 +54,74 @@ func (h *Handler) DeleteRequest(ctx *gin.Context) {
 
 	ctx.Redirect(http.StatusFound, "/")
 }
+
+// DELETE /api/delete/historical_estimate/:estimate_id/historical_objects/:object_id
+func (h *Handler) DeleteHObjectFromHEstimateAPI(ctx *gin.Context) {
+	estimateIDStr := ctx.Param("estimate_id")
+	objectIDStr := ctx.Param("object_id")
+
+	estimateID, err := strconv.Atoi(estimateIDStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid estimate id parameter: %w", err))
+		return
+	}
+
+	objectID, err := strconv.Atoi(objectIDStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid object id parameter: %w", err))
+		return
+	}
+
+	err = h.Repository.DeleteHObjectFromHEstimate(estimateID, objectID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, fmt.Errorf("failed to delete object from estimate: %w", err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":      "success",
+		"estimate_id": estimateID,
+		"object_id":   objectID,
+		"message":     "Object removed from estimate",
+	})
+}
+
+// PUT /api/estimate/historical_objects/:estimate_id/:object_id/quantity
+func (h *Handler) UpdateQuantityAPI(ctx *gin.Context) {
+	estimateIDStr := ctx.Param("estimate_id")
+	objectIDStr := ctx.Param("object_id")
+
+	estimateID, err := strconv.Atoi(estimateIDStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid estimate id parameter: %w", err))
+		return
+	}
+
+	objectID, err := strconv.Atoi(objectIDStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid object id parameter: %w", err))
+		return
+	}
+
+	var req struct {
+		Quantity *float64 `json:"quantity"`
+	}
+
+	if err := ctx.BindJSON(&req); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("некорректное тело запроса"))
+		return
+	}
+
+	if err := h.Repository.UpdateQuantity(estimateID, objectID, *req.Quantity); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, fmt.Errorf("failed to update quantity: %w", err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":      "success",
+		"estimate_id": estimateID,
+		"object_id":   objectID,
+		"quantity":    req.Quantity,
+		"message":     "Quantity updated successfully",
+	})
+}

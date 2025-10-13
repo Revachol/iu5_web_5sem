@@ -42,6 +42,10 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.PUT("/api/historical_estimate/:id/complete", h.FinishHistoricalEstimateAPI) //PUT завершить/отклонить модератором.
 	router.DELETE("/api/historical_estimate/:id", h.DeleteHistoricalEstimeteAPI)       //DELETE удаление (дата формирования)
 
+	//М-М
+	router.DELETE("/api/estimate/:estimate_id/historical_objects/:object_id", h.DeleteHObjectFromHEstimateAPI) //DELETE удаление услуги из заявки
+	router.PUT("/api/estimate/historical_objects/:estimate_id/:object_id/quantity", h.UpdateQuantityAPI)       //PUT изменение количества/порядка/значения в м-м (без PK м-м)
+
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

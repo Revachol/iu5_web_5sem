@@ -11,3 +11,13 @@ func (r *Repository) GetServicesByRequestID(requestID int) ([]ds.Historical_requ
 func (r *Repository) UpdateRequestStatus(requestID int, status string) error {
 	return r.db.Model(&ds.Historical_request{}).Where("id = ?", requestID).Update("status", status).Error
 }
+
+func (r *Repository) DeleteHObjectFromHEstimate(requestID, objectID int) error {
+	return r.db.Where("request_id = ? AND service_id = ?", requestID, objectID).Delete(&ds.Historical_request_service{}).Error
+}
+
+func (r *Repository) UpdateQuantity(requestID, objectID int, quantity float64) error {
+	return r.db.Model(&ds.Historical_request_service{}).
+		Where("request_id = ? AND service_id = ?", requestID, objectID).
+		Update("quantity", quantity).Error
+}
