@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/Revachol/iu5_web_5sem/internal/app/ds"
@@ -121,4 +122,66 @@ func (r *Repository) DeleteHistoricalEstimete(id int) error {
 		"submitted_at": time.Now(), // дата завершения
 	}
 	return r.db.Model(&ds.Historical_request{}).Where("id = ?", id).Updates(updates).Error
+}
+
+func (r *Repository) GetAverageServiceYear(id int) (int, error) {
+	var avgYear float64
+	const periodCastSQL = "CAST(HistoricalService.historical_period AS DECIMAL)"
+	err := r.db.Model(&ds.Historical_request_service{}).
+		Select("AVG("+periodCastSQL+")").
+		Joins("JOIN historical_services AS HistoricalService ON historical_request_services.service_id = HistoricalService.id").
+		Where("historical_request_services.request_id = ?", id).
+		Scan(&avgYear).Error
+	if err != nil {
+		return 0, err
+	}
+	return int(avgYear), nil
+}
+
+func (r *Repository) СalculateInflationMultiplier(startYear, endYear int) float64 {
+	if startYear >= endYear {
+		return 1.0
+	}
+
+	// Используем среднюю годовую инфляцию ~3%
+	years := endYear - startYear
+	inflationRate := 1.03 // 3% в год
+
+	return math.Pow(inflationRate, float64(years))
+}
+
+func (r *Repository) CalculateTotalHistoricalCost(id int) float64 {
+	var total float64
+	err := r.db.Model(&ds.Historical_request_service{}).
+		Select("SUM(total_price_usd)").
+		Where("historical_request_services.request_id = ?", id).
+		Scan(&total).Error
+	if err != nil {
+		return 0
+	}
+	return total
+}
+
+func (r *Repository) FinishHistoricalEstimate(estimateID int, req ds.CompleteOrderRequest) error {
+	var request ds.Historical_request
+	if err := r.db.First(&request, estimateID).Error; err != nil {
+		return fmt.Errorf("заказ с ID=%d не найден", estimateID)
+	}
+	averageYear, _ := r.GetAverageServiceYear(estimateID)
+	inflationMultiplier := r.СalculateInflationMultiplier(averageYear, 2025)
+	totalHistoricalCost := r.CalculateTotalHistoricalCost(estimateID)
+	finalCost := totalHistoricalCost * inflationMultiplier
+	updates := map[string]interface{}{
+		"status":               req.Status,
+		"moderator_id":         req.ModeratorID,
+		"completed_at":         time.Now(),
+		"total_cost_usd":       finalCost,
+		"inflation_multiplier": inflationMultiplier,
+	}
+	if err := r.db.Model(&ds.Historical_request{}).Where("id = ?", estimateID).Updates(updates).Error; err != nil {
+		return fmt.Errorf("не удалось обновить итоговую стоимость: %w", err)
+	}
+
+	return nil
+
 }

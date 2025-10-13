@@ -173,6 +173,7 @@ func (h *Handler) UpdateHistoricalEstimateAPI(ctx *gin.Context) {
 	})
 }
 
+// PUT /api/historical_estimate/:id/form
 func (h *Handler) FormHistoricalEstimateAPI(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	estimateID, err := strconv.Atoi(idStr)
@@ -217,5 +218,40 @@ func (h *Handler) DeleteHistoricalEstimeteAPI(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Объект успешно удалён",
+	})
+}
+
+// PUT /api/historical_estimate/:id/complete
+func (h *Handler) FinishHistoricalEstimateAPI(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	var req ds.CompleteOrderRequest
+	if err := ctx.BindJSON(&req); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	req.Status = "completed" // или "rejected"
+	req.ModeratorID = 1
+
+	if err := h.Repository.FinishHistoricalEstimate(id, req); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	order, materials, err := h.Repository.GetHistoricalRequest(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":    "success",
+		"order":     order,
+		"materials": materials,
 	})
 }

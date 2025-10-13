@@ -28,3 +28,8 @@ type OrderResponse struct {
 type UpdateOrderRequest struct {
 	CurrentYear *float64 `json:"current_year,omitempty"`
 }
+
+type CompleteOrderRequest struct {
+	Status      string `json:"status"`
+	ModeratorID int    `json:"moderator_id"`
+}
