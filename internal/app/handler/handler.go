@@ -46,6 +46,13 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.DELETE("/api/estimate/:estimate_id/historical_objects/:object_id", h.DeleteHObjectFromHEstimateAPI) //DELETE удаление услуги из заявки
 	router.PUT("/api/estimate/historical_objects/:estimate_id/:object_id/quantity", h.UpdateQuantityAPI)       //PUT изменение количества/порядка/значения в м-м (без PK м-м)
 
+	//Users
+	// 	POST регистрация
+	router.GET("/api/users/:id", h.GetUserAPI) // GET полей пользователя после аутентификации (для личного кабинета)
+	// PUT пользователя (личный кабинет)
+	// POST аутентификация
+	// POST деавторизация
+
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {
