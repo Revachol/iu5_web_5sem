@@ -47,11 +47,11 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.PUT("/api/estimate/historical_objects/:estimate_id/:object_id/quantity", h.UpdateQuantityAPI)       //PUT изменение количества/порядка/значения в м-м (без PK м-м)
 
 	//Users
-	// 	POST регистрация
-	router.GET("/api/users/:id", h.GetUserAPI) // GET полей пользователя после аутентификации (для личного кабинета)
-	// PUT пользователя (личный кабинет)
-	// POST аутентификация
-	// POST деавторизация
+	router.POST("/api/users/register", h.RegisterUserAPI) // 	POST регистрация
+	router.GET("/api/users/:id", h.GetUserAPI)            // GET полей пользователя после аутентификации (для личного кабинета)
+	router.PUT("/api/users/:id", h.UpdateUserAPI)         // PUT пользователя (личный кабинет)
+	router.POST("/api/users/login", h.LoginUserAPI)       // POST аутентификация
+	router.POST("/api/users/logout", h.LogoutUserAPI)     // POST деавторизация
 
 }
 
