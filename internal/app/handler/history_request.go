@@ -63,6 +63,22 @@ func (h *Handler) GetDraftRequestAPI(ctx *gin.Context) {
 }
 
 // GET /api/historical_estimate
+
+// GetAllHistoricalEstimateAPI возвращает список исторических заявок с фильтрацией по статусу и диапазону дат.
+//
+// @Summary Получить список исторических заявок
+// @Description Возвращает список заявок (не удалённых и не черновиков), с возможностью фильтрации по статусу и диапазону дат формирования.
+// @Tags Estimates
+// @Accept json
+// @Produce json
+// @Param status query string false "Фильтр по статусу заявки (например: draft, completed, rejected)"
+// @Param start query string false "Дата начала диапазона (формат: YYYY-MM-DD)"
+// @Param end query string false "Дата конца диапазона (формат: YYYY-MM-DD)"
+// @Success 200 {object} map[string]interface{} "Список заявок успешно получен"
+// @Failure 400 {object} map[string]string "Некорректный запрос"
+// @Failure 500 {object} map[string]string "Ошибка на стороне сервера"
+// @Router /api/historical_estimate [get]
+// @Security ApiKeyAuth
 func (h *Handler) GetAllHistoricalEstimateAPI(ctx *gin.Context) {
 	status := ctx.Query("status")
 	start := ctx.Query("start") // формат YYYY-MM-DD

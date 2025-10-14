@@ -98,6 +98,50 @@ paths:
       summary: Создать новую историческую услугу
       tags:
       - services
+  /api/historical_estimate:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список заявок (не удалённых и не черновиков), с возможностью
+        фильтрации по статусу и диапазону дат формирования.
+      parameters:
+      - description: 'Фильтр по статусу заявки (например: draft, completed, rejected)'
+        in: query
+        name: status
+        type: string
+      - description: 'Дата начала диапазона (формат: YYYY-MM-DD)'
+        in: query
+        name: start
+        type: string
+      - description: 'Дата конца диапазона (формат: YYYY-MM-DD)'
+        in: query
+        name: end
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список заявок успешно получен
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Некорректный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка на стороне сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получить список исторических заявок
+      tags:
+      - Estimates
   /api/historical_object/{id}:
     delete:
       description: Удаляет услугу из базы данных по её ID.
@@ -251,6 +295,109 @@ paths:
       summary: Получить список услуг
       tags:
       - services
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Проверяет логин и пароль, возвращает JWT токен и устанавливает
+        его в заголовок для последующих запросов.
+      parameters:
+      - description: Учетные данные пользователя
+        in: body
+        name: credentials
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная аутентификация
+          schema:
+            type: object
+        "400":
+          description: Некорректный запрос
+          schema:
+            type: object
+        "401":
+          description: Неверный логин или пароль
+          schema:
+            type: object
+        "500":
+          description: Ошибка при генерации токена
+          schema:
+            type: object
+      summary: Аутентификация пользователя
+      tags:
+      - Auth
+  /api/users/logout:
+    post:
+      consumes:
+      - application/json
+      description: 'Завершает авторизацию: добавляет JWT в блеклист Redis, аннулируя
+        токен.'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный выход
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Токен отсутствует или недействителен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка при работе с Redis
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Завершение сессии пользователя
+      tags:
+      - Auth
+  /api/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт пользователя с заданной ролью, возвращает JWT access-токен
+        и устанавливает его в cookie.
+      parameters:
+      - description: Данные для регистрации пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно зарегистрирован
+          schema:
+            type: object
+        "400":
+          description: Некорректный запрос или пользователь уже существует
+          schema:
+            type: object
+        "500":
+          description: Ошибка на стороне сервера
+          schema:
+            type: object
+      summary: Регистрация нового пользователя
+      tags:
+      - Auth
 schemes:
 - http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

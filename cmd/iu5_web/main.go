@@ -29,6 +29,10 @@ import (
 // @schemes http
 // @BasePath /
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 // main инициализирует конфигурацию, репозиторий, хендлеры и запускает приложение
 func main() {
 	ctx := context.Background()
