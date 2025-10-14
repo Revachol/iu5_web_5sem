@@ -1,6 +1,9 @@
 package ds
 
-import "time"
+import (
+	"github.com/Revachol/iu5_web_5sem/internal/app/role"
+	"time"
+)
 
 type User struct {
 	ID           int       `gorm:"primaryKey;autoIncrement"`
@@ -11,4 +14,5 @@ type User struct {
 	IsActive     bool      `gorm:"not null;default:true"`
 	CreatedAt    time.Time `gorm:"not null;default:now()"`
 	UpdatedAt    time.Time `gorm:"not null;default:now()"`
+	Role         role.Role `gorm:"int;not null;default:0" json:"role"`
 }

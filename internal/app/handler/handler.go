@@ -1,22 +1,34 @@
 package handler
 
 import (
+	_ "github.com/Revachol/iu5_web_5sem/docs"
+	"github.com/Revachol/iu5_web_5sem/internal/app/config"
+	"github.com/Revachol/iu5_web_5sem/internal/app/redis"
 	"github.com/Revachol/iu5_web_5sem/internal/app/repository"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
 	Repository *repository.Repository
+	Config     *config.Config
+	Redis      *redis.Client
 }
 
-func NewHandler(r *repository.Repository) *Handler {
+func NewHandler(r *repository.Repository, cfg *config.Config, redis *redis.Client) *Handler {
 	return &Handler{
 		Repository: r,
+		Config:     cfg,
+		Redis:      redis,
 	}
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.GET("/", h.GetHistoricalObjects)
 	router.GET("/historical_object/:id", h.GetHistoricalObject)
 	router.GET("/api/historical_object/:id", h.GetHistoricalObjectAPI) //GET одна запись

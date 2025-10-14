@@ -77,6 +77,18 @@ func (h *Handler) AddServiceToRequest(ctx *gin.Context) {
 }
 
 // GET /api/historical_object/:id
+
+// @Summary Получить услугу по ID
+// @Description Возвращает полную информацию об исторической услуге по её ID.
+// @Tags services
+// @Accept json
+// @Produce json
+// @Param id path int true "ID исторической услуги (объекта)"
+// @Success 200 {object} object "Успешный ответ"
+// @Failure 400 {object} object "Неверный ID параметра"
+// @Failure 404 {object} object "Объект не найден"
+// @Failure 500 {object} object "Ошибка сервера"
+// @Router /api/historical_object/{id} [get]
 func (h *Handler) GetHistoricalObjectAPI(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -105,6 +117,16 @@ func (h *Handler) GetHistoricalObjectAPI(ctx *gin.Context) {
 }
 
 // GET /api/historical_objects?title=<название>
+
+// @Summary Получить список услуг
+// @Description Возвращает список всех исторических услуг. Может быть отфильтрован по названию.
+// @Tags services
+// @Accept json
+// @Produce json
+// @Param title query string false "Название услуги (частичное совпадение)"
+// @Success 200 {object} object "Список исторических услуг"
+// @Failure 500 {object} object "Ошибка сервера"
+// @Router /api/historical_objects [get]
 func (h *Handler) GetHistoricalObjectsAPI(ctx *gin.Context) {
 	title := ctx.Query("title")
 
@@ -121,6 +143,17 @@ func (h *Handler) GetHistoricalObjectsAPI(ctx *gin.Context) {
 }
 
 // POST /api/create_object
+
+// @Summary Создать новую историческую услугу
+// @Description Создает новую запись исторической услуги в базе данных.
+// @Tags services
+// @Accept json
+// @Produce json
+// @Param Historical_service body ds.Historical_service true "Данные для создания услуги"
+// @Success 200 {object} object "Успешно созданная услуга"
+// @Failure 400 {object} object "Некорректный JSON или неверные данные"
+// @Failure 500 {object} object "Ошибка сервера"
+// @Router /api/create_object [post]
 func (h *Handler) CreateHistoricalObjectAPI(ctx *gin.Context) {
 	var input ds.Historical_service
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -139,6 +172,18 @@ func (h *Handler) CreateHistoricalObjectAPI(ctx *gin.Context) {
 }
 
 // PUT /api/historical_object/:id
+
+// @Summary Обновить историческую услугу
+// @Description Обновляет существующую услугу по её ID.
+// @Tags services
+// @Accept json
+// @Produce json
+// @Param id path int true "ID исторической услуги для обновления"
+// @Param Historical_service body ds.Historical_service true "Данные для обновления услуги"
+// @Success 200 {object} object "Успешно обновленная услуга"
+// @Failure 400 {object} object "Неверный ID или некорректный JSON"
+// @Failure 500 {object} object "Ошибка сервера"
+// @Router /api/historical_object/{id} [put]
 func (h *Handler) UpdateHistoricalObjectAPI(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -165,7 +210,15 @@ func (h *Handler) UpdateHistoricalObjectAPI(ctx *gin.Context) {
 	})
 }
 
-// DELETE /api/historical_object/:id
+// @Summary Удалить историческую услугу
+// @Description Удаляет услугу из базы данных по её ID.
+// @Tags services
+// @Produce json
+// @Param id path int true "ID исторической услуги для удаления"
+// @Success 200 {object} object "Сообщение об успешном удалении"
+// @Failure 400 {object} object "Неверный ID параметра"
+// @Failure 500 {object} object "Ошибка сервера"
+// @Router /api/historical_object/{id} [delete]
 func (h *Handler) DeleteHistoricalObjectAPI(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -187,6 +240,17 @@ func (h *Handler) DeleteHistoricalObjectAPI(ctx *gin.Context) {
 }
 
 // POST /api/add_to_estimate/:id
+
+// @Summary Добавить услугу в черновую заявку
+// @Description Добавляет указанную услугу в текущую черновую заявку (корзину) пользователя. Если черновика нет, он создается.
+// @Tags estimates
+// @Accept json
+// @Produce json
+// @Param id path int true "ID исторической услуги для добавления"
+// @Success 200 {object} object "Сообщение об успешном добавлении и информация о заявке"
+// @Failure 400 {object} object "Неверный ID параметра"
+// @Failure 500 {object} object "Ошибка сервера (например, при создании черновика)"
+// @Router /api/add_to_estimate/{id} [post]
 func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
 	objectIDStr := ctx.Param("id")
 	objectID, err := strconv.Atoi(objectIDStr)
@@ -231,6 +295,18 @@ func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
 }
 
 // POST /api/historical_object/:id/image
+
+// @Summary Загрузить изображение для услуги
+// @Description Загружает изображение для конкретной исторической услуги. Использует multipart/form-data.
+// @Tags services
+// @Accept mpfd
+// @Produce json
+// @Param id path int true "ID исторической услуги"
+// @Param image formData file true "Файл изображения"
+// @Success 200 {object} object "Сообщение об успешной загрузке"
+// @Failure 400 {object} object "Неверный ID или файл не предоставлен"
+// @Failure 500 {object} object "Ошибка сервера при обработке файла"
+// @Router /api/historical_object/{id}/image [post]
 func (h *Handler) UploadHistoricalObjectImage(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
