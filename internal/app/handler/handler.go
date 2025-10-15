@@ -35,7 +35,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/historical_estimate/:id", h.GetHistoricalEstimate)
 	router.GET("/api/historical_estimate_count", h.GetDraftRequestAPI)     //GET иконки корзины (без входных параметров, ид заявки вычисляется).
 	router.GET("/api/historical_estimate", h.GetAllHistoricalEstimateAPI)  //GET список (кроме удаленных и черновика, поля модератора и создателя через логины) с фильтрацией по диапазону даты формирования и статусу
-	router.GET("/api/historical_estimate/:id", h.GetHistoricalEstimateAPI) //GET одна запись (поля заявки + ее услуги)
+	router.GET("/api/historical_estimate/:id", h.GetHistoricalEstimateAPI) //GET одна смета (поля заявки + ее услуги)
 
 	router.PUT("/api/historical_estimate/:id", h.UpdateHistoricalEstimateAPI)          //PUT изменения полей заявки по теме
 	router.PUT("/api/historical_estimate/:id/form", h.FormHistoricalEstimateAPI)       //PUT сформировать создателем (дата формирования).
