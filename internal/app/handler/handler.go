@@ -61,7 +61,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 		auth.PUT("/historical_estimate/:id/form", h.FormHistoricalEstimateAPI)                               //PUT сформировать создателем (дата формирования).
 		auth.DELETE("/historical_estimate/:id", h.DeleteHistoricalEstimeteAPI)                               //DELETE удаление (дата формирования)
 		auth.DELETE("/estimate/:estimate_id/historical_objects/:object_id", h.DeleteHObjectFromHEstimateAPI) //DELETE удаление услуги из заявки
-		auth.PUT("/estimate/historical_objects/:estimate_id/:object_id/quantity", h.UpdateQuantityAPI)       //PUT изменение количества/порядка/значения в м-м (без PK м-м)
+		auth.PUT("/estimate/:estimate_id/historical_objects/:object_id/quantity", h.UpdateQuantityAPI)       //PUT изменение количества/порядка/значения в м-м (без PK м-м)
 	}
 
 	moder := router.Group("/api")

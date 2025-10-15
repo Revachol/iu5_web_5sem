@@ -287,10 +287,10 @@ func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
 	count := h.Repository.GetCartCount()
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":    "success",
-		"message":   "Объект добавлен в черновой заказ",
-		"orderID":   order.ID,
-		"itemCount": count,
+		"status":     "success",
+		"message":    "Объект добавлен в черновой заказ",
+		"estimateID": order.ID,
+		"itemCount":  count,
 	})
 }
 
