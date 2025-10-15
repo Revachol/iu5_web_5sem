@@ -56,7 +56,7 @@
 											"parentStyle": true,
 											"left": 83,
 											"top": 197,
-											"width": 28.919921875,
+											"width": 26.7109375,
 											"height": 13,
 											"text": "Lab2"
 										},
@@ -1632,7 +1632,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "Lab3",
+					"name": "Диаграмма классов",
 					"ownedElements": [
 						{
 							"_type": "UMLClassDiagram",
@@ -1699,9 +1699,9 @@
 													"font": "Arial;13;0",
 													"parentStyle": true,
 													"left": -4,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -1890,9 +1890,9 @@
 													"parentStyle": true,
 													"left": -176,
 													"top": 16,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -2084,9 +2084,9 @@
 													"parentStyle": true,
 													"left": -394,
 													"top": -22,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -2277,9 +2277,9 @@
 													"parentStyle": true,
 													"left": 110,
 													"top": -76,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -2470,9 +2470,9 @@
 													"parentStyle": true,
 													"left": -532,
 													"top": 16,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -2661,9 +2661,9 @@
 													"parentStyle": true,
 													"left": -812,
 													"top": -466,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -4474,9 +4474,9 @@
 													"parentStyle": true,
 													"left": -282,
 													"top": -84,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -7445,9 +7445,9 @@
 													"parentStyle": true,
 													"left": -206,
 													"top": -248,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -7558,9 +7558,9 @@
 													"parentStyle": true,
 													"left": -66,
 													"top": -4,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -7748,9 +7748,9 @@
 													"parentStyle": true,
 													"left": -166,
 													"top": -34,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -7938,9 +7938,9 @@
 													"parentStyle": true,
 													"left": -52,
 													"top": 12,
-													"width": 67.18994140625,
+													"width": 157.41552734375,
 													"height": 13,
-													"text": "(from Lab3)"
+													"text": "(from Диаграмма классов)"
 												},
 												{
 													"_type": "LabelView",
@@ -9441,16 +9441,6 @@
 									"name": "Домен Исторической сметы",
 									"ownedElements": [
 										{
-											"_type": "UMLInterfaceRealization",
-											"_id": "AAAAAAGZ3/j4+MKoPNc=",
-											"_parent": {
-												"$ref": "AAAAAAGZ3/j4+MKn9aM="
-											},
-											"source": {
-												"$ref": "AAAAAAGZ3/j4+MKn9aM="
-											}
-										},
-										{
 											"_type": "UMLDependency",
 											"_id": "AAAAAAGZ4AqElJ1e4wk=",
 											"_parent": {
@@ -9532,16 +9522,6 @@
 									"name": "Домен объектов в смете",
 									"ownedElements": [
 										{
-											"_type": "UMLInterfaceRealization",
-											"_id": "AAAAAAGZ3/j4+MKyGXM=",
-											"_parent": {
-												"$ref": "AAAAAAGZ3/j4+MKxs5w="
-											},
-											"source": {
-												"$ref": "AAAAAAGZ3/j4+MKxs5w="
-											}
-										},
-										{
 											"_type": "UMLDependency",
 											"_id": "AAAAAAGZ4Ap3fJnV69w=",
 											"_parent": {
@@ -9582,16 +9562,6 @@
 									},
 									"name": "Домен Исторические объекты",
 									"ownedElements": [
-										{
-											"_type": "UMLInterfaceRealization",
-											"_id": "AAAAAAGZ3/j4+MKegWU=",
-											"_parent": {
-												"$ref": "AAAAAAGZ3/j4+MKdHVc="
-											},
-											"source": {
-												"$ref": "AAAAAAGZ3/j4+MKdHVc="
-											}
-										},
 										{
 											"_type": "UMLAssociation",
 											"_id": "AAAAAAGZ4Ani9YW/kxI=",
