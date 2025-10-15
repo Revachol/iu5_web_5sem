@@ -65,14 +65,14 @@ func (h *Handler) RegisterUserAPI(ctx *gin.Context) {
 	var req struct {
 		Email    string `json:"email" binding:"required,email"`
 		Password string `json:"password" binding:"required,min=6"`
-		Role     int    `json:"role"` // "user" или "moderator"
+		// Role     int    `json:"role"` // "user" или "moderator"
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("некорректные данные: %v", err))
 		return
 	}
 
-	user, err := h.Repository.CreateUser(req.Email, req.Password, role.Role(req.Role))
+	user, err := h.Repository.CreateUser(req.Email, req.Password, role.User)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, fmt.Errorf("ошибка при создании пользователя: %v", err))
 		return
