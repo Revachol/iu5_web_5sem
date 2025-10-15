@@ -259,15 +259,15 @@ func (h *Handler) FinishHistoricalEstimateAPI(ctx *gin.Context) {
 		return
 	}
 
-	order, materials, err := h.Repository.GetHistoricalRequest(id)
+	estimate, objects, err := h.Repository.GetHistoricalRequest(id)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":    "success",
-		"order":     order,
-		"materials": materials,
+		"status":   "success",
+		"estimate": estimate,
+		"objects":  objects,
 	})
 }

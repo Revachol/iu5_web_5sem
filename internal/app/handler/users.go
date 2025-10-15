@@ -82,7 +82,7 @@ func (h *Handler) RegisterUserAPI(ctx *gin.Context) {
 		"status":  "success",
 		"message": "Пользователь успешно зарегистрирован",
 		"id":      user.ID,
-		"login":   user.Email,
+		"email":   user.Email,
 	})
 }
 
