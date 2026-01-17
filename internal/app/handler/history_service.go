@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -28,8 +29,18 @@ func (h *Handler) GetHistoricalObjects(ctx *gin.Context) {
 		}
 	}
 
-	estimateCount := h.Repository.GetCartCount()
-	draftRequestID, _ := h.Repository.GetDraftRequestID() // если нет — будет 0
+	// Получаем user_id из контекста (если пользователь авторизован)
+	userID, exists := ctx.Get("user_id")
+	var estimateCount int64
+	var draftRequestID int
+
+	if exists {
+		estimateCount, _ = h.Repository.GetCartCountForUser(userID.(int))
+		draftRequestID, _ = h.Repository.GetDraftRequestID(userID.(int))
+	} else {
+		estimateCount = 0
+		draftRequestID = 0
+	}
 
 	logrus.Info("Draft Request ID:", draftRequestID)
 	logrus.Info("Estimate Count:", estimateCount)
@@ -57,23 +68,6 @@ func (h *Handler) GetHistoricalObject(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "historical_object.html", gin.H{
 		"historical_object": order,
 	})
-}
-
-func (h *Handler) AddServiceToRequest(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		logrus.Error("invalid service id: ", err)
-		ctx.Redirect(http.StatusFound, "/")
-		return
-	}
-
-	err = h.Repository.AddServiceToRequest(id)
-	if err != nil {
-		logrus.Error("failed to add service to request: ", err)
-	}
-
-	ctx.Redirect(http.StatusFound, "/")
 }
 
 // GET /api/historical_object/:id
@@ -259,10 +253,14 @@ func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
 		return
 	}
 
-	userID := 1
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
 
 	// Получаем черновой заказ пользователя
-	order, err := h.Repository.GetDraftRequest(userID)
+	order, err := h.Repository.GetDraftRequest(userID.(int))
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -270,7 +268,7 @@ func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
 
 	// Если чернового заказа нет — создаём новый
 	if order.ID == 0 {
-		order, err = h.Repository.GetDraftRequest(userID)
+		order, err = h.Repository.CreateDraftRequest(userID.(int))
 		if err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
 			return
@@ -278,13 +276,17 @@ func (h *Handler) AddHistoricalObjecsToRequestAPI(ctx *gin.Context) {
 	}
 
 	// Добавляем материал в заказ
-	if err := h.Repository.AddServiceToRequest(objectID); err != nil {
+	if err := h.Repository.AddServiceToRequest(objectID, userID.(int)); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	// Получаем новое количество материалов в заказе
-	count := h.Repository.GetCartCount()
+	count, err := h.Repository.GetCartCountForUser(userID.(int))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":     "success",

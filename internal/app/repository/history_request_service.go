@@ -17,7 +17,15 @@ func (r *Repository) DeleteHObjectFromHEstimate(requestID, objectID int) error {
 }
 
 func (r *Repository) UpdateQuantity(requestID, objectID int, quantity float64) error {
-	return r.db.Model(&ds.Historical_request_service{}).
-		Where("request_id = ? AND service_id = ?", requestID, objectID).
-		Update("quantity", quantity).Error
+	// Сначала получаем текущую запись для обновления total_price_usd
+	var record ds.Historical_request_service
+	if err := r.db.Where("request_id = ? AND service_id = ?", requestID, objectID).First(&record).Error; err != nil {
+		return err
+	}
+
+	// Обновляем quantity и пересчитываем total_price_usd
+	record.Quantity = quantity
+	record.TotalPriceUSD = record.UnitPriceUSD * quantity
+
+	return r.db.Save(&record).Error
 }

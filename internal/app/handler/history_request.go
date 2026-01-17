@@ -35,8 +35,13 @@ func (h *Handler) GetHistoricalRequest(ctx *gin.Context) {
 
 // GET /api/historical_estimate_count
 func (h *Handler) GetDraftRequestAPI(ctx *gin.Context) {
-	userID := 1
-	order, err := h.Repository.GetDraftRequest(userID)
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	order, err := h.Repository.GetDraftRequest(userID.(int))
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -53,7 +58,11 @@ func (h *Handler) GetDraftRequestAPI(ctx *gin.Context) {
 	}
 
 	// Считаем количество услуг
-	count := h.Repository.GetCartCount()
+	count, err := h.Repository.GetCartCountForUser(userID.(int))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":    "success",
@@ -80,11 +89,33 @@ func (h *Handler) GetDraftRequestAPI(ctx *gin.Context) {
 // @Router /api/historical_estimate [get]
 // @Security ApiKeyAuth
 func (h *Handler) GetAllHistoricalEstimateAPI(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Получаем информацию о пользователе для проверки IsModerator
+	user, err := h.Repository.GetUserByID(userID.(int))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
 	status := ctx.Query("status")
 	start := ctx.Query("start") // формат YYYY-MM-DD
 	end := ctx.Query("end")
 
-	orders, err := h.Repository.GetOrdersFiltered(status, start, end)
+	// Если пользователь не модератор, показываем только его заявки
+	var orders []ds.OrderResponse
+	if user.IsModerator {
+		// Модератор видит все заявки
+		orders, err = h.Repository.GetOrdersFiltered(status, start, end, 0) // 0 = все пользователи
+	} else {
+		// Обычный пользователь видит только свои заявки
+		orders, err = h.Repository.GetOrdersFiltered(status, start, end, userID.(int))
+	}
+
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -106,7 +137,28 @@ func (h *Handler) GetHistoricalEstimateAPI(ctx *gin.Context) {
 		return
 	}
 
-	// Получаем заказ и обхекты в нем
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Получаем информацию о пользователе для проверки IsModerator
+	user, err := h.Repository.GetUserByID(userID.(int))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Проверяем права доступа к заявке
+	if !user.IsModerator {
+		if !h.Repository.IsEstimateOwnedByUser(id, userID.(int)) {
+			h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("access denied to this estimate"))
+			return
+		}
+	}
+
+	// Получаем заказ и объекты в нем
 	order, materials, err := h.Repository.GetHistoricalRequest(id)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusNotFound, err)
@@ -146,6 +198,18 @@ func (h *Handler) UpdateHistoricalEstimateAPI(ctx *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Проверяем, что пользователь является владельцем заявки
+	if !h.Repository.IsEstimateOwnedByUser(id, userID.(int)) {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("user does not own this estimate"))
 		return
 	}
 
@@ -198,6 +262,18 @@ func (h *Handler) FormHistoricalEstimateAPI(ctx *gin.Context) {
 		return
 	}
 
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Проверяем, что пользователь является владельцем заявки
+	if !h.Repository.IsEstimateOwnedByUser(estimateID, userID.(int)) {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("user does not own this estimate"))
+		return
+	}
+
 	if err := h.Repository.FormMaterialOrder(estimateID); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
@@ -225,6 +301,18 @@ func (h *Handler) DeleteHistoricalEstimeteAPI(ctx *gin.Context) {
 		return
 	}
 
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Проверяем, что пользователь является владельцем заявки
+	if !h.Repository.IsEstimateOwnedByUser(id, userID.(int)) {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("user does not own this estimate"))
+		return
+	}
+
 	err = h.Repository.DeleteHistoricalEstimete(id)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
@@ -246,13 +334,31 @@ func (h *Handler) FinishHistoricalEstimateAPI(ctx *gin.Context) {
 		return
 	}
 
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Проверяем, что пользователь является модератором
+	user, err := h.Repository.GetUserByID(userID.(int))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	if !user.IsModerator {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("only moderators can complete estimates"))
+		return
+	}
+
 	var req ds.CompleteOrderRequest
 	if err := ctx.BindJSON(&req); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
 	req.Status = "completed" // или "rejected"
-	req.ModeratorID = 1
+	req.ModeratorID = userID.(int)
 
 	if err := h.Repository.FinishHistoricalEstimate(id, req); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)

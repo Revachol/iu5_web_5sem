@@ -29,6 +29,23 @@ func NewHandler(r *repository.Repository, cfg *config.Config, redis *redis.Clien
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	// ---------------------------
+	// CORS middleware для поддержки запросов от Tauri и веб-приложений
+	// ---------------------------
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+
+	// ---------------------------
 	// Публичные маршруты
 	// ---------------------------
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

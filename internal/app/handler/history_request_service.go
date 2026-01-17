@@ -18,6 +18,27 @@ func (h *Handler) GetHistoricalEstimate(ctx *gin.Context) {
 		return
 	}
 
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.String(http.StatusUnauthorized, "user not authenticated")
+		return
+	}
+
+	// Получаем информацию о пользователе для проверки IsModerator
+	user, err := h.Repository.GetUserByID(userID.(int))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "failed to get user info")
+		return
+	}
+
+	// Проверяем права доступа к заявке
+	if !user.IsModerator {
+		if !h.Repository.IsEstimateOwnedByUser(requestID, userID.(int)) {
+			ctx.String(http.StatusForbidden, "access denied to this estimate")
+			return
+		}
+	}
+
 	services, err := h.Repository.GetServicesByRequestID(requestID)
 	if err != nil {
 		logrus.Error("could not get services for request: ", err)
@@ -47,6 +68,18 @@ func (h *Handler) DeleteRequest(ctx *gin.Context) {
 		return
 	}
 
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.String(http.StatusUnauthorized, "user not authenticated")
+		return
+	}
+
+	// Проверяем, что пользователь является владельцем заявки
+	if !h.Repository.IsEstimateOwnedByUser(requestID, userID.(int)) {
+		ctx.String(http.StatusForbidden, "access denied to this estimate")
+		return
+	}
+
 	err = h.Repository.UpdateRequestStatus(requestID, "deleted")
 	if err != nil {
 		logrus.Error("failed to update request status: ", err)
@@ -69,6 +102,18 @@ func (h *Handler) DeleteHObjectFromHEstimateAPI(ctx *gin.Context) {
 	objectID, err := strconv.Atoi(objectIDStr)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid object id parameter: %w", err))
+		return
+	}
+
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Ensure the estimate belongs to the user
+	if !h.Repository.IsEstimateOwnedByUser(estimateID, userID.(int)) {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("user does not own this estimate"))
 		return
 	}
 
@@ -100,6 +145,18 @@ func (h *Handler) UpdateQuantityAPI(ctx *gin.Context) {
 	objectID, err := strconv.Atoi(objectIDStr)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid object id parameter: %w", err))
+		return
+	}
+
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		h.errorHandler(ctx, http.StatusUnauthorized, fmt.Errorf("user_id not found in context"))
+		return
+	}
+
+	// Ensure the estimate belongs to the user
+	if !h.Repository.IsEstimateOwnedByUser(estimateID, userID.(int)) {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("user does not own this estimate"))
 		return
 	}
 

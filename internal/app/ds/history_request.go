@@ -18,7 +18,7 @@ type Historical_request struct {
 }
 
 type OrderResponse struct {
-	ID         int        `json:"id"`
+	ID         int        `json:"idHO"`
 	Status     string     `json:"status"`
 	DateCreate time.Time  `json:"date_create"`
 	DateForm   *time.Time `json:"date_form,omitempty"`

@@ -17,7 +17,6 @@ import (
 )
 
 func (r *Repository) GetHistoricalObjects() ([]ds.Historical_service, error) {
-	// имитируем работу с БД. Типа мы выполнили sql запрос и получили эти строки из БД
 	var orders []ds.Historical_service
 	err := r.db.Find(&orders).Error
 	if err != nil {
@@ -48,86 +47,137 @@ func (r *Repository) GetOrdersByTitle(title string) ([]ds.Historical_service, er
 	return orders, nil
 }
 
-func (r *Repository) GetCartCount() int64 {
-	var (
-		requestID uint
-		count     int64
-	)
-	creatorID := 1
+// GetCartCount возвращает количество элементов в корзине для конкретного пользователя
+func (r *Repository) GetCartCount(userID int) (int64, error) {
+	var count int64
 
-	// Поиск черновой заявки
+	// Поиск черновой заявки пользователя
+	var request ds.Historical_request
 	err := r.db.Model(&ds.Historical_request{}).
-		Where("creator_id = ? AND status = ?", creatorID, "draft").
-		Select("id").First(&requestID).Error
+		Where("creator_id = ? AND status = ?", userID, "draft").
+		First(&request).Error
+
 	if err != nil {
-		return 0
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil // Корзина пуста
+		}
+		return 0, err
 	}
 
 	// Подсчёт количества исторических объектов в заявке
 	err = r.db.Model(&ds.Historical_request_service{}).
-		Where("request_id = ?", requestID).
+		Where("request_id = ?", request.ID).
 		Count(&count).Error
 	if err != nil {
-		logrus.Println("Error counting records in Historical_service_Historical_service_request:", err)
+		return 0, err
 	}
 
-	return count
+	return count, nil
 }
 
-func (r *Repository) AddServiceToRequest(serviceID int) error {
+// GetCartCountForUser - алиас для GetCartCount для совместимости
+func (r *Repository) GetCartCountForUser(userID int) (int64, error) {
+	return r.GetCartCount(userID)
+}
+
+// AddServiceToRequest добавляет услугу в заявку пользователя
+func (r *Repository) AddServiceToRequest(serviceID, userID int) error {
 	var requestID uint
-	creatorID := 1
-	moderatorID := 2
 
 	loc, _ := time.LoadLocation("Europe/Moscow")
 	now := time.Now().In(loc).Truncate(time.Second)
 
+	// Ищем существующую черновую заявку
 	err := r.db.Model(&ds.Historical_request{}).
-		Where("creator_id = ? AND status = ?", creatorID, "draft").
+		Where("creator_id = ? AND status = ?", userID, "draft").
 		Select("id").
 		First(&requestID).Error
 
+	// Если черновой заявки нет - создаем новую
 	if err != nil {
-		moderatorIDptr := &moderatorID
-		newReq := ds.Historical_request{
-			Status:      "draft",
-			CreatedAt:   now,
-			CreatorID:   creatorID,
-			ModeratorID: moderatorIDptr,
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			newReq := ds.Historical_request{
+				Status:    "draft",
+				CreatedAt: now,
+				CreatorID: userID,
+				// ModeratorID может быть nil для черновика
+			}
+			if err := r.db.Create(&newReq).Error; err != nil {
+				return fmt.Errorf("не удалось создать черновую заявку: %w", err)
+			}
+			requestID = uint(newReq.ID)
+		} else {
+			return fmt.Errorf("ошибка при поиске черновой заявки: %w", err)
 		}
-		if err := r.db.Create(&newReq).Error; err != nil {
-			return fmt.Errorf("не удалось создать черновую заявку: %w", err)
-		}
-		requestID = uint(newReq.ID)
 	}
 
+	// Проверяем существование услуги
 	var service ds.Historical_service
 	if err := r.db.First(&service, serviceID).Error; err != nil {
 		return fmt.Errorf("услуга с id %d не найдена: %w", serviceID, err)
 	}
 
-	record := ds.Historical_request_service{
-		RequestID:     int(requestID),
-		ServiceID:     serviceID,
-		Quantity:      1,
-		UnitPriceUSD:  service.PriceUSD,
-		TotalPriceUSD: service.PriceUSD,
-	}
-	if err := r.db.Create(&record).Error; err != nil {
-		return fmt.Errorf("ошибка при добавлении услуги в заявку: %w", err)
+	// Проверяем, не добавлена ли уже эта услуга в заявку
+	var existingRecord ds.Historical_request_service
+	err = r.db.Where("request_id = ? AND service_id = ?", requestID, serviceID).
+		First(&existingRecord).Error
+
+	if err == nil {
+		// Услуга уже есть в заявке - увеличиваем количество
+		existingRecord.Quantity++
+		existingRecord.TotalPriceUSD = existingRecord.UnitPriceUSD * float64(existingRecord.Quantity)
+		if err := r.db.Save(&existingRecord).Error; err != nil {
+			return fmt.Errorf("ошибка при обновлении количества: %w", err)
+		}
+	} else if errors.Is(err, gorm.ErrRecordNotFound) {
+		// Услуги нет в заявке - создаем новую запись
+		record := ds.Historical_request_service{
+			RequestID:     int(requestID),
+			ServiceID:     serviceID,
+			Quantity:      1,
+			UnitPriceUSD:  service.PriceUSD,
+			TotalPriceUSD: service.PriceUSD,
+		}
+		if err := r.db.Create(&record).Error; err != nil {
+			return fmt.Errorf("ошибка при добавлении услуги в заявку: %w", err)
+		}
+	} else {
+		return fmt.Errorf("ошибка при проверке существующей записи: %w", err)
 	}
 
 	return nil
 }
 
-func (r *Repository) GetDraftRequestID() (int, error) {
+// GetDraftRequestID возвращает ID черновой заявки пользователя
+func (r *Repository) GetDraftRequestID(userID int) (int, error) {
 	var request ds.Historical_request
-	creatorID := 1
-	err := r.db.Where("creator_id = ? AND status = ?", creatorID, "draft").First(&request).Error
+	err := r.db.Where("creator_id = ? AND status = ?", userID, "draft").First(&request).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil // Черновика нет
+		}
 		return 0, err
 	}
 	return request.ID, nil
+}
+
+// CreateDraftRequest создает новую черновую заявку для пользователя
+func (r *Repository) CreateDraftRequest(userID int) (ds.Historical_request, error) {
+	loc, _ := time.LoadLocation("Europe/Moscow")
+	now := time.Now().In(loc).Truncate(time.Second)
+
+	newReq := ds.Historical_request{
+		Status:    "draft",
+		CreatedAt: now,
+		CreatorID: userID,
+		// ModeratorID может быть nil для черновика
+	}
+
+	if err := r.db.Create(&newReq).Error; err != nil {
+		return ds.Historical_request{}, fmt.Errorf("не удалось создать черновую заявку: %w", err)
+	}
+
+	return newReq, nil
 }
 
 func (r *Repository) CreateHistoricalObject(obj *ds.Historical_service) error {
